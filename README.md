@@ -12,7 +12,7 @@
 |---|---|---|
 | 1 | Farhana Akter Sumaiya | 2024200000023 |
 | 2 | Lamia Nusrat Mim | 2023200000431 |
-| 3 | MD FOZLY UDDIN | 2024200000219 |
+| 3 | MD Fozly Uddin | 2024200000219 |
 | 4 | Jannatul Ferdus | 2023100000682 |
 | 5 | Irfan Ul Hoque | 2023200000050 |
 
