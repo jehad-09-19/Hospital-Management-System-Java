@@ -1,0 +1,9 @@
+*.class
+out/
+bin/
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+data/hospital.dat
