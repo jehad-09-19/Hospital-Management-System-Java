@@ -12,10 +12,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
-/**
- * Main dashboard for the Hospital Management System.
- * The UI is intentionally designed like a modern desktop hospital application.
- */
+
 public class MainFrame extends JFrame {
     private static final Color NAVY = new Color(18, 52, 86);
     private static final Color BLUE = new Color(33, 150, 243);
