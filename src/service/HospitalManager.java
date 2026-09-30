@@ -1,18 +1,130 @@
 package service;
-import model.*; import model.Roles.*; import model.Entities.*; import exception.Exceptions.*; import java.io.*; import java.util.*;
+
+import model.*;
+import model.Roles.*;
+import model.Entities.*;
+import exception.Exceptions.*;
+
+import java.io.*;
+import java.util.*;
+
 public class HospitalManager {
- private static final String FILE="data/hospital.dat"; private HospitalData d;
- public HospitalManager(){d=load();}
- private HospitalData load(){try(ObjectInputStream in=new ObjectInputStream(new FileInputStream(FILE))){return (HospitalData)in.readObject();}catch(Exception e){HospitalData x=new HospitalData(); x.users.add(new Admin("admin","1234","System Admin","admin@seu.edu.bd","01700000000","Super Admin"));x.users.add(new Doctor("D001","1234","Dr. Rahman","doctor@hospital.com","01711111111","Cardiologist","MBBS, FCPS"));x.users.add(new Patient("P001","1234","Nishan","patient@hospital.com","01811111111","Male",22,"Dhaka"));x.users.add(new Receptionist("R001","1234","Sumaiya","reception@hospital.com","01911111111","R001","Dhaka"));x.users.add(new Nurse("N001","1234","Nusrat","nurse@hospital.com","01611111111","N001","BSc in Nursing","Emergency"));return x;}}
- public HospitalData data(){return d;} public void save()throws IOException{File f=new File(FILE);f.getParentFile().mkdirs();try(ObjectOutputStream o=new ObjectOutputStream(new FileOutputStream(f))){o.writeObject(d);}}
- public User login(String id,String p){for(User u:d.users)if(u.getUserId().equalsIgnoreCase(id)&&u.getPassword().equals(p))return u;return null;} public User find(String id){for(User u:d.users)if(u.getUserId().equalsIgnoreCase(id))return u;return null;}
- public void add(User u)throws DuplicateId,InvalidData,IOException{validate(u);if(find(u.getUserId())!=null)throw new DuplicateId("User ID already exists.");d.users.add(u);save();}
- public void update(User u)throws NotFound,InvalidData,IOException{validate(u);User old=find(u.getUserId());if(old==null)throw new NotFound("User not found.");d.users.set(d.users.indexOf(old),u);save();}
- public void delete(String id)throws NotFound,IOException{User u=find(id);if(u==null)throw new NotFound("User not found.");d.users.remove(u);save();}
- private void validate(User u)throws InvalidData{if(u.getUserId().isBlank()||u.getPassword().isBlank()||u.getName().isBlank())throw new InvalidData("ID, password and name are required.");}
- public void addAppointment(Appointment a)throws Exception{for(Appointment x:d.appointments)if(x.appointmentId.equalsIgnoreCase(a.appointmentId))throw new DuplicateId("Appointment ID already exists.");if(!(find(a.doctorId) instanceof Doctor))throw new NotFound("Doctor not found.");if(!(find(a.patientId) instanceof Patient))throw new NotFound("Patient not found.");d.appointments.add(a);save();}
- public void status(String id,String s)throws Exception{for(Appointment a:d.appointments)if(a.appointmentId.equalsIgnoreCase(id)){a.status=s;save();return;}throw new NotFound("Appointment not found.");}
- public void addRecord(MedicalRecord r)throws Exception{for(MedicalRecord x:d.records)if(x.medicalRecordsId.equalsIgnoreCase(r.medicalRecordsId))throw new DuplicateId("Medical record ID exists.");if(!(find(r.patientId) instanceof Patient))throw new NotFound("Patient not found.");d.records.add(r);save();}
- public void updateRecord(String id,String details)throws Exception{for(MedicalRecord r:d.records)if(r.medicalRecordsId.equalsIgnoreCase(id)){r.details=details;save();return;}throw new NotFound("Medical record not found.");}
- public void addPayment(Payment p)throws Exception{for(Payment x:d.payments)if(x.paymentId.equalsIgnoreCase(p.paymentId))throw new DuplicateId("Payment ID exists.");if(!(find(p.doctorId) instanceof Doctor))throw new NotFound("Doctor not found.");if(!(find(p.patientId) instanceof Patient))throw new NotFound("Patient not found.");if(p.amount<=0)throw new InvalidData("Amount must be greater than zero.");d.payments.add(p);save();}
+    private static final String FILE = "data/hospital.dat";
+    private HospitalData d;
+
+    public HospitalManager() {
+        d = load();
+    }
+
+    private HospitalData load() {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(FILE))) {
+            return (HospitalData) in.readObject();
+        } catch (Exception e) {
+            HospitalData x = new HospitalData();
+            x.users.add(new Admin("admin", "1234", "System Admin", "admin@seu.edu.bd", "01700000000", "Super Admin"));
+            x.users.add(new Doctor("D001", "1234", "Dr. Rahman", "doctor@hospital.com", "01711111111", "Cardiologist", "MBBS, FCPS"));
+            x.users.add(new Patient("P001", "1234", "Nishan", "patient@hospital.com", "01811111111", "Male", 22, "Dhaka"));
+            x.users.add(new Receptionist("R001", "1234", "Sumaiya", "reception@hospital.com", "01911111111", "R001", "Dhaka"));
+            x.users.add(new Nurse("N001", "1234", "Nusrat", "nurse@hospital.com", "01611111111", "N001", "BSc in Nursing", "Emergency"));
+            return x;
+        }
+    }
+
+    public HospitalData data() {
+        return d;
+    }
+
+    public void save() throws IOException {
+        File f = new File(FILE);
+        f.getParentFile().mkdirs();
+        try (ObjectOutputStream o = new ObjectOutputStream(new FileOutputStream(f))) {
+            o.writeObject(d);
+        }
+    }
+
+    public User login(String id, String p) {
+        for (User u : d.users) if (u.getUserId().equalsIgnoreCase(id) && u.getPassword().equals(p)) return u;
+        return null;
+    }
+
+    public User find(String id) {
+        for (User u : d.users) if (u.getUserId().equalsIgnoreCase(id)) return u;
+        return null;
+    }
+
+    public void add(User u) throws DuplicateId, InvalidData, IOException {
+        validate(u);
+        if (find(u.getUserId()) != null) throw new DuplicateId("User ID already exists.");
+        d.users.add(u);
+        save();
+    }
+
+    public void update(User u) throws NotFound, InvalidData, IOException {
+        validate(u);
+        User old = find(u.getUserId());
+        if (old == null) throw new NotFound("User not found.");
+        d.users.set(d.users.indexOf(old), u);
+        save();
+    }
+
+    public void delete(String id) throws NotFound, IOException {
+        User u = find(id);
+        if (u == null) throw new NotFound("User not found.");
+        d.users.remove(u);
+        save();
+    }
+
+    private void validate(User u) throws InvalidData {
+        if (u.getUserId().isBlank() || u.getPassword().isBlank() || u.getName().isBlank())
+            throw new InvalidData("ID, password and name are required.");
+    }
+
+    public void addAppointment(Appointment a) throws Exception {
+        for (Appointment x : d.appointments)
+            if (x.appointmentId.equalsIgnoreCase(a.appointmentId))
+                throw new DuplicateId("Appointment ID already exists.");
+        if (!(find(a.doctorId) instanceof Doctor)) throw new NotFound("Doctor not found.");
+        if (!(find(a.patientId) instanceof Patient)) throw new NotFound("Patient not found.");
+        d.appointments.add(a);
+        save();
+    }
+
+    public void status(String id, String s) throws Exception {
+        for (Appointment a : d.appointments)
+            if (a.appointmentId.equalsIgnoreCase(id)) {
+                a.status = s;
+                save();
+                return;
+            }
+        throw new NotFound("Appointment not found.");
+    }
+
+    public void addRecord(MedicalRecord r) throws Exception {
+        for (MedicalRecord x : d.records)
+            if (x.medicalRecordsId.equalsIgnoreCase(r.medicalRecordsId))
+                throw new DuplicateId("Medical record ID exists.");
+        if (!(find(r.patientId) instanceof Patient)) throw new NotFound("Patient not found.");
+        d.records.add(r);
+        save();
+    }
+
+    public void updateRecord(String id, String details) throws Exception {
+        for (MedicalRecord r : d.records)
+            if (r.medicalRecordsId.equalsIgnoreCase(id)) {
+                r.details = details;
+                save();
+                return;
+            }
+        throw new NotFound("Medical record not found.");
+    }
+
+    public void addPayment(Payment p) throws Exception {
+        for (Payment x : d.payments)
+            if (x.paymentId.equalsIgnoreCase(p.paymentId)) throw new DuplicateId("Payment ID exists.");
+        if (!(find(p.doctorId) instanceof Doctor)) throw new NotFound("Doctor not found.");
+        if (!(find(p.patientId) instanceof Patient)) throw new NotFound("Patient not found.");
+        if (p.amount <= 0) throw new InvalidData("Amount must be greater than zero.");
+        d.payments.add(p);
+        save();
+    }
 }
