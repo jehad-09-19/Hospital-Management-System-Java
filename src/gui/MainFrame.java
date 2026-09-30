@@ -355,7 +355,10 @@ public class MainFrame extends JFrame {
 
         String[] columns = {"ID", "Patient", "Doctor", "Date", "Status"};
         DefaultTableModel m = new DefaultTableModel(columns, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         List<Appointment> list = manager.data().appointments;
         int start = Math.max(0, list.size() - 5);
@@ -382,7 +385,8 @@ public class MainFrame extends JFrame {
         JPanel actions = new JPanel(new GridLayout(1, 5, 10, 0));
         actions.setOpaque(false);
         addAction(actions, "Add User", BLUE, e -> {
-            if (currentUser instanceof Admin) userListDialog(); else profileDialog();
+            if (currentUser instanceof Admin) userListDialog();
+            else profileDialog();
         });
         addAction(actions, "Book Appointment", GREEN, e -> appointmentDialog());
         addAction(actions, "View Records", PURPLE, e -> medicalRecordDialog());
@@ -420,7 +424,9 @@ public class MainFrame extends JFrame {
         return l;
     }
 
-    private int totalUsers() { return manager.data().users.size(); }
+    private int totalUsers() {
+        return manager.data().users.size();
+    }
 
     private int countRole(Class<?> type) {
         int count = 0;
@@ -428,13 +434,33 @@ public class MainFrame extends JFrame {
         return count;
     }
 
-    private boolean canSeeUsers() { return currentUser instanceof Admin; }
-    private boolean canSeeDoctors() { return true; }
-    private boolean canSeePatients() { return true; }
-    private boolean canSeeNurses() { return currentUser instanceof Admin || currentUser instanceof Doctor || currentUser instanceof Nurse; }
-    private boolean canSeeAppointments() { return true; }
-    private boolean canSeeRecords() { return currentUser instanceof Admin || currentUser instanceof Doctor || currentUser instanceof Patient || currentUser instanceof Nurse; }
-    private boolean canSeePayments() { return currentUser instanceof Admin || currentUser instanceof Doctor || currentUser instanceof Patient || currentUser instanceof Receptionist; }
+    private boolean canSeeUsers() {
+        return currentUser instanceof Admin;
+    }
+
+    private boolean canSeeDoctors() {
+        return true;
+    }
+
+    private boolean canSeePatients() {
+        return true;
+    }
+
+    private boolean canSeeNurses() {
+        return currentUser instanceof Admin || currentUser instanceof Doctor || currentUser instanceof Nurse;
+    }
+
+    private boolean canSeeAppointments() {
+        return true;
+    }
+
+    private boolean canSeeRecords() {
+        return currentUser instanceof Admin || currentUser instanceof Doctor || currentUser instanceof Patient || currentUser instanceof Nurse;
+    }
+
+    private boolean canSeePayments() {
+        return currentUser instanceof Admin || currentUser instanceof Doctor || currentUser instanceof Patient || currentUser instanceof Receptionist;
+    }
 
     private void profileDialog() {
         JPanel p = new JPanel(new GridLayout(0, 2, 7, 7));
@@ -442,18 +468,28 @@ public class MainFrame extends JFrame {
         JTextField name = new JTextField(currentUser.getName());
         JTextField email = new JTextField(currentUser.getEmail());
         JTextField contact = new JTextField(currentUser.getContactNo());
-        p.add(new JLabel("User ID:")); p.add(new JLabel(currentUser.getUserId()));
-        p.add(new JLabel("Role:")); p.add(new JLabel(currentUser.getRole()));
-        p.add(new JLabel("Name:")); p.add(name);
-        p.add(new JLabel("Email:")); p.add(email);
-        p.add(new JLabel("Contact:")); p.add(contact);
+        p.add(new JLabel("User ID:"));
+        p.add(new JLabel(currentUser.getUserId()));
+        p.add(new JLabel("Role:"));
+        p.add(new JLabel(currentUser.getRole()));
+        p.add(new JLabel("Name:"));
+        p.add(name);
+        p.add(new JLabel("Email:"));
+        p.add(email);
+        p.add(new JLabel("Contact:"));
+        p.add(contact);
         int result = JOptionPane.showConfirmDialog(this, p, "My Profile - Update", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             currentUser.setName(name.getText());
             currentUser.setEmail(email.getText());
             currentUser.setContactNo(contact.getText());
-            try { manager.save(); JOptionPane.showMessageDialog(this, "Profile updated successfully."); showDashboard(); }
-            catch (Exception e) { showError(e); }
+            try {
+                manager.save();
+                JOptionPane.showMessageDialog(this, "Profile updated successfully.");
+                showDashboard();
+            } catch (Exception e) {
+                showError(e);
+            }
         }
     }
 
@@ -465,73 +501,273 @@ public class MainFrame extends JFrame {
         List<User> list = manager.data().users.stream().filter(u -> u.getRole().equals(role)).toList();
         String[] columns = {"ID", "Name", "Role", "Email", "Contact"};
         DefaultTableModel m = new DefaultTableModel(columns, 0);
-        for (User u : list) m.addRow(new Object[]{u.getUserId(), u.getName(), u.getRole(), u.getEmail(), u.getContactNo()});
+        for (User u : list)
+            m.addRow(new Object[]{u.getUserId(), u.getName(), u.getRole(), u.getEmail(), u.getContactNo()});
         JTable t = new JTable(m);
         JPanel panel = new JPanel(new BorderLayout(8, 8));
         panel.setPreferredSize(new Dimension(720, 420));
         panel.add(new JScrollPane(t), BorderLayout.CENTER);
-        JButton add = new JButton("Add"); JButton update = new JButton("Update Selected"); JButton delete = new JButton("Delete Selected");
-        JPanel bp = new JPanel(); bp.add(add); bp.add(update); bp.add(delete); panel.add(bp, BorderLayout.SOUTH);
+        JButton add = new JButton("Add");
+        JButton update = new JButton("Update Selected");
+        JButton delete = new JButton("Delete Selected");
+        JPanel bp = new JPanel();
+        bp.add(add);
+        bp.add(update);
+        bp.add(delete);
+        panel.add(bp, BorderLayout.SOUTH);
         add.addActionListener(e -> addUserDialog(role, m));
-        update.addActionListener(e -> { int row=t.getSelectedRow(); if(row<0){showError("Select a row.");return;} User u=manager.find(m.getValueAt(row,0).toString()); if(u!=null)updateUserDialog(u,m); });
-        delete.addActionListener(e -> { int row=t.getSelectedRow(); if(row<0){showError("Select a row.");return;} try{manager.delete(m.getValueAt(row,0).toString());m.removeRow(row);showDashboard();}catch(Exception ex){showError(ex);} });
+        update.addActionListener(e -> {
+            int row = t.getSelectedRow();
+            if (row < 0) {
+                showError("Select a row.");
+                return;
+            }
+            User u = manager.find(m.getValueAt(row, 0).toString());
+            if (u != null) updateUserDialog(u, m);
+        });
+        delete.addActionListener(e -> {
+            int row = t.getSelectedRow();
+            if (row < 0) {
+                showError("Select a row.");
+                return;
+            }
+            try {
+                manager.delete(m.getValueAt(row, 0).toString());
+                m.removeRow(row);
+                showDashboard();
+            } catch (Exception ex) {
+                showError(ex);
+            }
+        });
         JOptionPane.showMessageDialog(this, panel, "Manage " + role + " Users", JOptionPane.PLAIN_MESSAGE);
     }
 
     private void addUserDialog(String role, DefaultTableModel m) {
         JPanel p = new JPanel(new GridLayout(0, 2, 6, 6));
-        JTextField id=new JTextField(), pass=new JTextField(), name=new JTextField(), email=new JTextField(), contact=new JTextField();
-        JTextField d1=new JTextField(), d2=new JTextField(), d3=new JTextField();
-        p.add(new JLabel("User ID:"));p.add(id); p.add(new JLabel("Password:"));p.add(pass); p.add(new JLabel("Name:"));p.add(name); p.add(new JLabel("Email:"));p.add(email); p.add(new JLabel("Contact:"));p.add(contact);
-        if(role.equals("Admin")){p.add(new JLabel("Admin Type:"));p.add(d1);} else if(role.equals("Doctor")){p.add(new JLabel("Specialist:"));p.add(d1);p.add(new JLabel("Educational Information:"));p.add(d2);} else if(role.equals("Patient")){p.add(new JLabel("Gender:"));p.add(d1);p.add(new JLabel("Age:"));p.add(d2);p.add(new JLabel("Address:"));p.add(d3);} else if(role.equals("Receptionist")){p.add(new JLabel("Receptionist ID:"));p.add(d1);p.add(new JLabel("Address:"));p.add(d2);} else {p.add(new JLabel("Nurse ID:"));p.add(d1);p.add(new JLabel("Qualification:"));p.add(d2);p.add(new JLabel("Department:"));p.add(d3);}
-        if(JOptionPane.showConfirmDialog(this,p,"Add "+role,JOptionPane.OK_CANCEL_OPTION)!=JOptionPane.OK_OPTION)return;
-        try{User u=makeUser(role,id.getText(),pass.getText(),name.getText(),email.getText(),contact.getText(),d1.getText(),d2.getText(),d3.getText());manager.add(u);m.addRow(new Object[]{u.getUserId(),u.getName(),u.getRole(),u.getEmail(),u.getContactNo()});showDashboard();}catch(Exception e){showError(e);}
+        JTextField id = new JTextField(), pass = new JTextField(), name = new JTextField(), email = new JTextField(), contact = new JTextField();
+        JTextField d1 = new JTextField(), d2 = new JTextField(), d3 = new JTextField();
+        p.add(new JLabel("User ID:"));
+        p.add(id);
+        p.add(new JLabel("Password:"));
+        p.add(pass);
+        p.add(new JLabel("Name:"));
+        p.add(name);
+        p.add(new JLabel("Email:"));
+        p.add(email);
+        p.add(new JLabel("Contact:"));
+        p.add(contact);
+        if (role.equals("Admin")) {
+            p.add(new JLabel("Admin Type:"));
+            p.add(d1);
+        } else if (role.equals("Doctor")) {
+            p.add(new JLabel("Specialist:"));
+            p.add(d1);
+            p.add(new JLabel("Educational Information:"));
+            p.add(d2);
+        } else if (role.equals("Patient")) {
+            p.add(new JLabel("Gender:"));
+            p.add(d1);
+            p.add(new JLabel("Age:"));
+            p.add(d2);
+            p.add(new JLabel("Address:"));
+            p.add(d3);
+        } else if (role.equals("Receptionist")) {
+            p.add(new JLabel("Receptionist ID:"));
+            p.add(d1);
+            p.add(new JLabel("Address:"));
+            p.add(d2);
+        } else {
+            p.add(new JLabel("Nurse ID:"));
+            p.add(d1);
+            p.add(new JLabel("Qualification:"));
+            p.add(d2);
+            p.add(new JLabel("Department:"));
+            p.add(d3);
+        }
+        if (JOptionPane.showConfirmDialog(this, p, "Add " + role, JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION)
+            return;
+        try {
+            User u = makeUser(role, id.getText(), pass.getText(), name.getText(), email.getText(), contact.getText(), d1.getText(), d2.getText(), d3.getText());
+            manager.add(u);
+            m.addRow(new Object[]{u.getUserId(), u.getName(), u.getRole(), u.getEmail(), u.getContactNo()});
+            showDashboard();
+        } catch (Exception e) {
+            showError(e);
+        }
     }
 
-    private User makeUser(String role,String id,String pass,String name,String email,String contact,String d1,String d2,String d3) throws InvalidData {
-        try { return switch(role){case "Admin"->new Admin(id,pass,name,email,contact,d1);case "Doctor"->new Doctor(id,pass,name,email,contact,d1,d2);case "Patient"->new Patient(id,pass,name,email,contact,d1,Integer.parseInt(d2),d3);case "Receptionist"->new Receptionist(id,pass,name,email,contact,d1,d2);default->new Nurse(id,pass,name,email,contact,d1,d2,d3);}; }
-        catch(NumberFormatException e){throw new InvalidData("Patient age must be a number.");}
+    private User makeUser(String role, String id, String pass, String name, String email, String contact, String d1, String d2, String d3) throws InvalidData {
+        try {
+            return switch (role) {
+                case "Admin" -> new Admin(id, pass, name, email, contact, d1);
+                case "Doctor" -> new Doctor(id, pass, name, email, contact, d1, d2);
+                case "Patient" -> new Patient(id, pass, name, email, contact, d1, Integer.parseInt(d2), d3);
+                case "Receptionist" -> new Receptionist(id, pass, name, email, contact, d1, d2);
+                default -> new Nurse(id, pass, name, email, contact, d1, d2, d3);
+            };
+        } catch (NumberFormatException e) {
+            throw new InvalidData("Patient age must be a number.");
+        }
     }
 
     private void updateUserDialog(User u, DefaultTableModel m) {
-        JPanel p=new JPanel(new GridLayout(0,2,6,6)); JTextField name=new JTextField(u.getName()),email=new JTextField(u.getEmail()),contact=new JTextField(u.getContactNo()),pass=new JTextField(u.getPassword());
-        p.add(new JLabel("ID:"));p.add(new JLabel(u.getUserId()));p.add(new JLabel("Password:"));p.add(pass);p.add(new JLabel("Name:"));p.add(name);p.add(new JLabel("Email:"));p.add(email);p.add(new JLabel("Contact:"));p.add(contact);
-        if(JOptionPane.showConfirmDialog(this,p,"Update User",JOptionPane.OK_CANCEL_OPTION)!=JOptionPane.OK_OPTION)return;
-        u.setPassword(pass.getText());u.setName(name.getText());u.setEmail(email.getText());u.setContactNo(contact.getText());
-        try{manager.update(u);refreshTableModel(m,u.getRole());showDashboard();}catch(Exception e){showError(e);}
+        JPanel p = new JPanel(new GridLayout(0, 2, 6, 6));
+        JTextField name = new JTextField(u.getName()), email = new JTextField(u.getEmail()), contact = new JTextField(u.getContactNo()), pass = new JTextField(u.getPassword());
+        p.add(new JLabel("ID:"));
+        p.add(new JLabel(u.getUserId()));
+        p.add(new JLabel("Password:"));
+        p.add(pass);
+        p.add(new JLabel("Name:"));
+        p.add(name);
+        p.add(new JLabel("Email:"));
+        p.add(email);
+        p.add(new JLabel("Contact:"));
+        p.add(contact);
+        if (JOptionPane.showConfirmDialog(this, p, "Update User", JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION)
+            return;
+        u.setPassword(pass.getText());
+        u.setName(name.getText());
+        u.setEmail(email.getText());
+        u.setContactNo(contact.getText());
+        try {
+            manager.update(u);
+            refreshTableModel(m, u.getRole());
+            showDashboard();
+        } catch (Exception e) {
+            showError(e);
+        }
     }
 
-    private void refreshTableModel(DefaultTableModel m,String role){m.setRowCount(0);for(User u:manager.data().users)if(u.getRole().equals(role))m.addRow(new Object[]{u.getUserId(),u.getName(),u.getRole(),u.getEmail(),u.getContactNo()});}
+    private void refreshTableModel(DefaultTableModel m, String role) {
+        m.setRowCount(0);
+        for (User u : manager.data().users)
+            if (u.getRole().equals(role))
+                m.addRow(new Object[]{u.getUserId(), u.getName(), u.getRole(), u.getEmail(), u.getContactNo()});
+    }
 
     private void showUserList(String role) {
-        List<User> list=manager.data().users.stream().filter(u->u.getRole().equals(role)).toList();
-        DefaultTableModel m=new DefaultTableModel(new Object[]{"ID","Name","Role","Email","Contact"},0);
-        for(User u:list)m.addRow(new Object[]{u.getUserId(),u.getName(),u.getRole(),u.getEmail(),u.getContactNo()});
-        JTable t=new JTable(m);t.setRowHeight(28);JScrollPane sp=new JScrollPane(t);sp.setPreferredSize(new Dimension(720,400));
-        JOptionPane.showMessageDialog(this,sp,role+" List",JOptionPane.PLAIN_MESSAGE);
+        List<User> list = manager.data().users.stream().filter(u -> u.getRole().equals(role)).toList();
+        DefaultTableModel m = new DefaultTableModel(new Object[]{"ID", "Name", "Role", "Email", "Contact"}, 0);
+        for (User u : list)
+            m.addRow(new Object[]{u.getUserId(), u.getName(), u.getRole(), u.getEmail(), u.getContactNo()});
+        JTable t = new JTable(m);
+        t.setRowHeight(28);
+        JScrollPane sp = new JScrollPane(t);
+        sp.setPreferredSize(new Dimension(720, 400));
+        JOptionPane.showMessageDialog(this, sp, role + " List", JOptionPane.PLAIN_MESSAGE);
     }
 
     private void appointmentDialog() {
-        JPanel p=new JPanel(new GridLayout(0,2,6,6)); JTextField id=new JTextField(),doctor=new JTextField(),patient=new JTextField(),date=new JTextField(); JComboBox<String> status=new JComboBox<>(new String[]{"Scheduled","Accepted","Rescheduled","Cancelled"});
-        p.add(new JLabel("Appointment ID:"));p.add(id);p.add(new JLabel("Doctor ID:"));p.add(doctor);p.add(new JLabel("Patient ID:"));p.add(patient);p.add(new JLabel("Date / Time:"));p.add(date);p.add(new JLabel("Status:"));p.add(status);
-        if(JOptionPane.showConfirmDialog(this,p,"Schedule Appointment",JOptionPane.OK_CANCEL_OPTION)==JOptionPane.OK_OPTION){try{manager.addAppointment(new Appointment(id.getText(),doctor.getText(),patient.getText(),date.getText(),status.getSelectedItem().toString()));JOptionPane.showMessageDialog(this,"Appointment scheduled successfully.");}catch(Exception e){showError(e);}}
-        String[] columns={"ID","Doctor","Patient","Date","Status"};DefaultTableModel m=new DefaultTableModel(columns,0);for(Appointment a:manager.data().appointments)m.addRow(new Object[]{a.appointmentId,a.doctorId,a.patientId,a.date,a.status});JTable t=new JTable(m);t.setRowHeight(27);
-        JButton cancel=new JButton("Cancel Selected");cancel.addActionListener(e->{int row=t.getSelectedRow();if(row<0)return;try{manager.status(m.getValueAt(row,0).toString(), "Cancelled");m.setValueAt("Cancelled",row,4);showDashboard();}catch(Exception ex){showError(ex);}});
-        JPanel panel=new JPanel(new BorderLayout(8,8));panel.setPreferredSize(new Dimension(750,430));panel.add(new JScrollPane(t),BorderLayout.CENTER);panel.add(cancel,BorderLayout.SOUTH);JOptionPane.showMessageDialog(this,panel,"Appointment Information",JOptionPane.PLAIN_MESSAGE);showDashboard();
+        JPanel p = new JPanel(new GridLayout(0, 2, 6, 6));
+        JTextField id = new JTextField(), doctor = new JTextField(), patient = new JTextField(), date = new JTextField();
+        JComboBox<String> status = new JComboBox<>(new String[]{"Scheduled", "Accepted", "Rescheduled", "Cancelled"});
+        p.add(new JLabel("Appointment ID:"));
+        p.add(id);
+        p.add(new JLabel("Doctor ID:"));
+        p.add(doctor);
+        p.add(new JLabel("Patient ID:"));
+        p.add(patient);
+        p.add(new JLabel("Date / Time:"));
+        p.add(date);
+        p.add(new JLabel("Status:"));
+        p.add(status);
+        if (JOptionPane.showConfirmDialog(this, p, "Schedule Appointment", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+            try {
+                manager.addAppointment(new Appointment(id.getText(), doctor.getText(), patient.getText(), date.getText(), status.getSelectedItem().toString()));
+                JOptionPane.showMessageDialog(this, "Appointment scheduled successfully.");
+            } catch (Exception e) {
+                showError(e);
+            }
+        }
+        String[] columns = {"ID", "Doctor", "Patient", "Date", "Status"};
+        DefaultTableModel m = new DefaultTableModel(columns, 0);
+        for (Appointment a : manager.data().appointments)
+            m.addRow(new Object[]{a.appointmentId, a.doctorId, a.patientId, a.date, a.status});
+        JTable t = new JTable(m);
+        t.setRowHeight(27);
+        JButton cancel = new JButton("Cancel Selected");
+        cancel.addActionListener(e -> {
+            int row = t.getSelectedRow();
+            if (row < 0) return;
+            try {
+                manager.status(m.getValueAt(row, 0).toString(), "Cancelled");
+                m.setValueAt("Cancelled", row, 4);
+                showDashboard();
+            } catch (Exception ex) {
+                showError(ex);
+            }
+        });
+        JPanel panel = new JPanel(new BorderLayout(8, 8));
+        panel.setPreferredSize(new Dimension(750, 430));
+        panel.add(new JScrollPane(t), BorderLayout.CENTER);
+        panel.add(cancel, BorderLayout.SOUTH);
+        JOptionPane.showMessageDialog(this, panel, "Appointment Information", JOptionPane.PLAIN_MESSAGE);
+        showDashboard();
     }
 
     private void medicalRecordDialog() {
-        JPanel p=new JPanel(new GridLayout(0,2,6,6)); JTextField id=new JTextField(),patient=new JTextField(),details=new JTextField();p.add(new JLabel("Medical Record ID:"));p.add(id);p.add(new JLabel("Patient ID:"));p.add(patient);p.add(new JLabel("Details:"));p.add(details);
-        if(JOptionPane.showConfirmDialog(this,p,"Add Medical Record",JOptionPane.OK_CANCEL_OPTION)==JOptionPane.OK_OPTION){try{manager.addRecord(new MedicalRecord(id.getText(),patient.getText(),details.getText()));JOptionPane.showMessageDialog(this,"Medical record saved successfully.");}catch(Exception e){showError(e);}}
-        DefaultTableModel m=new DefaultTableModel(new Object[]{"Record ID","Patient ID","Details"},0);for(MedicalRecord r:manager.data().records)m.addRow(new Object[]{r.medicalRecordsId,r.patientId,r.details});JTable t=new JTable(m);t.setRowHeight(27);JScrollPane sp=new JScrollPane(t);sp.setPreferredSize(new Dimension(700,380));JOptionPane.showMessageDialog(this,sp,"Medical Records",JOptionPane.PLAIN_MESSAGE);showDashboard();
+        JPanel p = new JPanel(new GridLayout(0, 2, 6, 6));
+        JTextField id = new JTextField(), patient = new JTextField(), details = new JTextField();
+        p.add(new JLabel("Medical Record ID:"));
+        p.add(id);
+        p.add(new JLabel("Patient ID:"));
+        p.add(patient);
+        p.add(new JLabel("Details:"));
+        p.add(details);
+        if (JOptionPane.showConfirmDialog(this, p, "Add Medical Record", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+            try {
+                manager.addRecord(new MedicalRecord(id.getText(), patient.getText(), details.getText()));
+                JOptionPane.showMessageDialog(this, "Medical record saved successfully.");
+            } catch (Exception e) {
+                showError(e);
+            }
+        }
+        DefaultTableModel m = new DefaultTableModel(new Object[]{"Record ID", "Patient ID", "Details"}, 0);
+        for (MedicalRecord r : manager.data().records)
+            m.addRow(new Object[]{r.medicalRecordsId, r.patientId, r.details});
+        JTable t = new JTable(m);
+        t.setRowHeight(27);
+        JScrollPane sp = new JScrollPane(t);
+        sp.setPreferredSize(new Dimension(700, 380));
+        JOptionPane.showMessageDialog(this, sp, "Medical Records", JOptionPane.PLAIN_MESSAGE);
+        showDashboard();
     }
 
     private void paymentDialog() {
-        JPanel p=new JPanel(new GridLayout(0,2,6,6)); JTextField id=new JTextField(),doctor=new JTextField(),patient=new JTextField(),amount=new JTextField();p.add(new JLabel("Payment ID:"));p.add(id);p.add(new JLabel("Doctor ID:"));p.add(doctor);p.add(new JLabel("Patient ID:"));p.add(patient);p.add(new JLabel("Amount:"));p.add(amount);
-        if(JOptionPane.showConfirmDialog(this,p,"Doctor Fee Payment",JOptionPane.OK_CANCEL_OPTION)==JOptionPane.OK_OPTION){try{manager.addPayment(new Payment(id.getText(),doctor.getText(),patient.getText(),Double.parseDouble(amount.getText())));JOptionPane.showMessageDialog(this,"Payment recorded successfully.");}catch(Exception e){showError(e);}}
-        DefaultTableModel m=new DefaultTableModel(new Object[]{"Payment ID","Doctor ID","Patient ID","Amount"},0);for(Payment x:manager.data().payments)m.addRow(new Object[]{x.paymentId,x.doctorId,x.patientId,x.amount});JTable t=new JTable(m);t.setRowHeight(27);JScrollPane sp=new JScrollPane(t);sp.setPreferredSize(new Dimension(700,380));JOptionPane.showMessageDialog(this,sp,"Payment Information",JOptionPane.PLAIN_MESSAGE);showDashboard();
+        JPanel p = new JPanel(new GridLayout(0, 2, 6, 6));
+        JTextField id = new JTextField(), doctor = new JTextField(), patient = new JTextField(), amount = new JTextField();
+        p.add(new JLabel("Payment ID:"));
+        p.add(id);
+        p.add(new JLabel("Doctor ID:"));
+        p.add(doctor);
+        p.add(new JLabel("Patient ID:"));
+        p.add(patient);
+        p.add(new JLabel("Amount:"));
+        p.add(amount);
+        if (JOptionPane.showConfirmDialog(this, p, "Doctor Fee Payment", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+            try {
+                manager.addPayment(new Payment(id.getText(), doctor.getText(), patient.getText(), Double.parseDouble(amount.getText())));
+                JOptionPane.showMessageDialog(this, "Payment recorded successfully.");
+            } catch (Exception e) {
+                showError(e);
+            }
+        }
+        DefaultTableModel m = new DefaultTableModel(new Object[]{"Payment ID", "Doctor ID", "Patient ID", "Amount"}, 0);
+        for (Payment x : manager.data().payments)
+            m.addRow(new Object[]{x.paymentId, x.doctorId, x.patientId, x.amount});
+        JTable t = new JTable(m);
+        t.setRowHeight(27);
+        JScrollPane sp = new JScrollPane(t);
+        sp.setPreferredSize(new Dimension(700, 380));
+        JOptionPane.showMessageDialog(this, sp, "Payment Information", JOptionPane.PLAIN_MESSAGE);
+        showDashboard();
     }
 
-    private void showError(Exception e){showError(e.getMessage());}
-    private void showError(String message){JOptionPane.showMessageDialog(this,message,"Hospital Management System - Error",JOptionPane.ERROR_MESSAGE);}
+    private void showError(Exception e) {
+        showError(e.getMessage());
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Hospital Management System - Error", JOptionPane.ERROR_MESSAGE);
+    }
 }
